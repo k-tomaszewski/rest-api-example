@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.ErrorResponseException;
 
+@SuppressWarnings("serial")
 public class AccountNotFoundException extends ErrorResponseException {
 
     public static final String DETAIL = "Account does not exist.";
