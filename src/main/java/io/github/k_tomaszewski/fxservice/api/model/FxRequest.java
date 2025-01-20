@@ -1,5 +1,8 @@
 package io.github.k_tomaszewski.fxservice.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.github.k_tomaszewski.fxservice.api.model.CustomProblemDetails.GlobalError;
+import jakarta.validation.constraints.AssertFalse;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -18,13 +21,15 @@ public record FxRequest(
         @Positive
         BigDecimal dstAmount) {
 
-        @AssertTrue
-        public boolean onlyOneAmountDefined() {
+        @AssertTrue(message = "Only one amount can be defined: source or destination.", payload = GlobalError.class)
+        @JsonIgnore
+        public boolean isOnlyOneAmountDefined() {
                 return (srcAmount != null) ^ (dstAmount != null);
         }
 
-        @AssertTrue
-        public boolean differentCurrencies() {
-                return !Objects.equals(srcCcy, dstCcy);
+        @AssertFalse(message = "The same currency used as source and destination.", payload = GlobalError.class)
+        @JsonIgnore
+        public boolean isTheSameCurrencyUsedAsSrcAndDst() {
+                return Objects.equals(srcCcy, dstCcy);
         }
 }

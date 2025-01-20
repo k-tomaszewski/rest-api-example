@@ -2,17 +2,22 @@ package io.github.k_tomaszewski.fxservice.api;
 
 import io.github.k_tomaszewski.fxservice.api.model.AccountDetails;
 import io.github.k_tomaszewski.fxservice.api.model.AccountOpeningData;
+import io.github.k_tomaszewski.fxservice.api.model.CustomProblemDetails;
 import io.github.k_tomaszewski.fxservice.api.model.FxRequest;
 import io.github.k_tomaszewski.fxservice.api.model.FxSummary;
 import io.github.k_tomaszewski.fxservice.model.Account;
 import io.github.k_tomaszewski.fxservice.service.AccountService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
@@ -50,6 +55,14 @@ public class AccountController {
     public FxSummary exchange(@PathVariable("id") long accountId, @RequestBody @Validated FxRequest fxRequest) {
         return service.exchange(accountId, fxRequest)
                 .orElseThrow(AccountNotFoundException::new);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public CustomProblemDetails handleValidationExceptions(MethodArgumentNotValidException ex) {
+        var responseBody = new CustomProblemDetails(HttpStatus.BAD_REQUEST, ex.getBody().getDetail(), "invalid-input-data");
+        responseBody.populateErrors(ex.getBindingResult());
+        return responseBody;
     }
 
     private static Map<Currency, BigDecimal> toBalanceMap(Account account) {

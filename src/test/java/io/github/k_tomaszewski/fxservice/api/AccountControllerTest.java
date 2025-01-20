@@ -1,8 +1,7 @@
 package io.github.k_tomaszewski.fxservice.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.k_tomaszewski.fxservice.api.model.AccountDetails;
+import io.github.k_tomaszewski.fxservice.api.model.CustomProblemDetails;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,12 +12,12 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -47,7 +46,7 @@ public class AccountControllerTest {
     @ParameterizedTest
     @CsvSource({",Rambo,1.00", "John,,1.00", "John,Rambo,", "J,Rambo,1.00", "John,R,1.00", "John,Rambo,-1.00", "John1,Rambo,1.00",
             "John,Rambo,1.001"})
-    void shouldRejectAccountOpenRequestMissingFirstname(String firstName, String lastName, String balance) throws JsonProcessingException {
+    void shouldRejectAccountOpenRequestMissingFirstname(String firstName, String lastName, String balance) {
         // given
         Map<String, String> requestBody = new HashMap<>();
         if (firstName != null) {
@@ -61,17 +60,18 @@ public class AccountControllerTest {
         }
 
         // when
-        var responseEntity = restTemplate.exchange("/accounts", HttpMethod.POST, new HttpEntity<>(requestBody), ProblemDetail.class);
-        System.out.println(new ObjectMapper().writeValueAsString(responseEntity.getBody()));
+        var responseEntity = restTemplate.exchange("/accounts", HttpMethod.POST, new HttpEntity<>(requestBody), CustomProblemDetails.class);
 
         // then
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        Assertions.assertNotNull(responseEntity.getBody().getFieldErrors());
     }
 
     @Test
     void shouldReturn404WhenAccountDoesNotExist() {
         // when
-        var responseEntity = restTemplate.exchange("/accounts/123456789", HttpMethod.GET, new HttpEntity<>(null), ProblemDetail.class);
+        var responseEntity = restTemplate.exchange("/accounts/123456789", HttpMethod.GET, new HttpEntity<>(null),
+                CustomProblemDetails.class);
 
         // then
         Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
@@ -92,5 +92,21 @@ public class AccountControllerTest {
         Assertions.assertEquals(HttpStatus.OK, responseEntity1.getStatusCode());
         Assertions.assertEquals(HttpStatus.OK, responseEntity2.getStatusCode());
         Assertions.assertEquals(responseEntity1.getBody(), responseEntity2.getBody());
+    }
+
+    @Test
+    void shouldDetectGlobalErrors() {
+        // given
+        Map<String, String> requestBody = Map.of("srcCcy", "PLN", "dstCcy", "PLN");
+
+        // when
+        var responseEntity = restTemplate.exchange("/accounts/1/fx-transactions", HttpMethod.POST, new HttpEntity<>(requestBody),
+                CustomProblemDetails.class);
+
+        // then
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        Assertions.assertNotNull(responseEntity.getBody().getGlobalErrors());
+        Assertions.assertEquals(Set.of("Only one amount can be defined: source or destination.",
+                "The same currency used as source and destination."), Set.copyOf(responseEntity.getBody().getGlobalErrors()));
     }
 }
