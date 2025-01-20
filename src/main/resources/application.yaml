@@ -1,11 +1,9 @@
 spring:
   application.name: FX-service-example
-  datasource:
-    url: jdbc:h2:mem:testdb
-    jpa:
-      database-platform: org.hibernate.dialect.H2Dialect
-      hibernate:
-        ddl-auto: update
+  datasource.url: jdbc:h2:mem:testdb
+  jpa:
+    hibernate:
+      ddl-auto: update
   mvc:
     problemdetails:
       enabled: true
@@ -13,3 +11,8 @@ spring:
 server:
   error:
     include-binding-errors: always
+
+nbp:
+  base-url: https://api.nbp.pl/api
+  connect-timeout: 5s
+  read-timeout: 10s

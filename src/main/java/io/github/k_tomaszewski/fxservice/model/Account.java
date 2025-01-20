@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 
 import java.math.BigDecimal;
 
@@ -29,6 +30,9 @@ public class Account {
 
     @Column(nullable = false, scale = 2)
     private BigDecimal usdBalance = ZERO_AMOUNT;
+
+    @Version
+    private Long version;
 
     public Account() {
     }
@@ -77,5 +81,13 @@ public class Account {
 
     public void setUsdBalance(BigDecimal usdBalance) {
         this.usdBalance = usdBalance;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

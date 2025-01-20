@@ -2,6 +2,8 @@ package io.github.k_tomaszewski.fxservice.api;
 
 import io.github.k_tomaszewski.fxservice.api.model.AccountDetails;
 import io.github.k_tomaszewski.fxservice.api.model.AccountOpeningData;
+import io.github.k_tomaszewski.fxservice.api.model.FxRequest;
+import io.github.k_tomaszewski.fxservice.api.model.FxSummary;
 import io.github.k_tomaszewski.fxservice.model.Account;
 import io.github.k_tomaszewski.fxservice.service.AccountService;
 import org.springframework.http.MediaType;
@@ -18,13 +20,12 @@ import java.util.Currency;
 import java.util.Map;
 
 import static io.github.k_tomaszewski.fxservice.model.Account.ZERO_AMOUNT;
+import static io.github.k_tomaszewski.fxservice.service.AccountService.PLN;
+import static io.github.k_tomaszewski.fxservice.service.AccountService.USD;
 
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
-
-    private static final Currency PLN = Currency.getInstance("PLN");
-    private static final Currency USD = Currency.getInstance("USD");
 
     private final AccountService service;
 
@@ -42,6 +43,12 @@ public class AccountController {
     public AccountDetails getAccount(@PathVariable("id") long accountId) {
         return service.findAccount(accountId)
                 .map(account -> new AccountDetails(accountId, account.getFirstName(), account.getLastName(), toBalanceMap(account)))
+                .orElseThrow(AccountNotFoundException::new);
+    }
+
+    @PostMapping("/{id}/fx-transactions")
+    public FxSummary exchange(@PathVariable("id") long accountId, @RequestBody @Validated FxRequest fxRequest) {
+        return service.exchange(accountId, fxRequest)
                 .orElseThrow(AccountNotFoundException::new);
     }
 

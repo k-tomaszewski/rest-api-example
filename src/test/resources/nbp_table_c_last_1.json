@@ -1,0 +1,13 @@
+{
+  "table": "C",
+  "currency": "dolar amerykański",
+  "code": "USD",
+  "rates": [
+    {
+      "no": "012/C/NBP/2025",
+      "effectiveDate": "2025-01-20",
+      "bid": 4.0914,
+      "ask": 4.1740
+    }
+  ]
+}
