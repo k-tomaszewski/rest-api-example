@@ -65,6 +65,10 @@ Execute following command when the application is running to create an account:
 ```bash
 curl -X POST http://localhost:8080/accounts -H "Content-Type: application/json" -d '{"firstName": "Bolek", "lastName": "Nowy", "plnBalance": "1000.23"}' 
 ```
+The response contains full account details, including account ID:
+```json
+{"id":1,"firstName":"Bolek","lastName":"Nowy","balance":{"PLN":1000.23,"USD":0.00}}
+```
 ### How to get account details?
 Assuming account ID is 1, use following command to fetch account details:
 ```bash
@@ -77,16 +81,16 @@ Assuming you want to operate on account with ID 1, use following command to exch
 curl -X POST http://localhost:8080/accounts/1/fx-transactions -H "Content-Type: application/json" -d '{"srcCcy": "PLN", "srcAmount": "100.25", "dstCcy": "USD"}'
 ```
 The operation returns a summary of an exchange if it was successful (HTTP 200):
-```javascript
+```json
 {"srcCcy":"PLN","srcAmount":100.25,"dstCcy":"USD","dstAmount":24.02,"price":4.1740,"accountBalance":{"PLN":899.98,"USD":24.02}}
 ```
-Attributes "srcAmount" and "srcCcy" inform about money that was exchanged.
-Attributes "dstAmount" and "dstCcy" inform what was exchange result.
-The attribute "price" contains price that was used in exchange.
-The attribute "accountBalance" contains account balance after the exchange operation.
+Attributes _"srcAmount"_ and _"srcCcy"_ inform about money that was exchanged.
+Attributes _"dstAmount"_ and _"dstCcy"_ inform what was exchange result.
+The attribute _"price"_ contains price that was used in exchange.
+The attribute _"accountBalance"_ contains account balance after the exchange operation.
 
 ### How to change to obtain a given amount of a given currency?
-In this mode the request body must contain "dstAmount" instead of "srcAmount" attribute:
+In this mode the request body must contain _"dstAmount"_ instead of _"srcAmount"_ attribute:
 ```bash
 curl -X POST http://localhost:8080/accounts/1/fx-transactions -H "Content-Type: application/json" -d '{"srcCcy": "PLN", "dstCcy": "USD", "dstAmount": "1.00"}'
 ```
