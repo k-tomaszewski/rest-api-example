@@ -35,12 +35,12 @@ public class CustomProblemDetails extends ProblemDetail {
         }
         if (errors.hasFieldErrors()) {
             fieldErrors = errors.getFieldErrors().stream()
-                    .filter(error -> !isGlobal(error))
+                    .filter(error -> !isGlobalError(error))
                     .map(fieldError -> Map.of(fieldError.getField(), fieldError.getDefaultMessage()))
                     .toList();
 
             var globalErrorStream = errors.getFieldErrors().stream()
-                    .filter(CustomProblemDetails::isGlobal)
+                    .filter(CustomProblemDetails::isGlobalError)
                     .map(FieldError::getDefaultMessage);
             if (globalErrors != null) {
                 globalErrorStream = Stream.concat(globalErrors.stream(), globalErrorStream);
@@ -65,12 +65,9 @@ public class CustomProblemDetails extends ProblemDetail {
         this.fieldErrors = fieldErrors;
     }
 
-    private static boolean isGlobal(FieldError error) {
-        if (error instanceof ConstraintViolation<?> violation) {
-            return violation.getConstraintDescriptor().getPayload().contains(GlobalError.class);
-        }
+    private static boolean isGlobalError(FieldError error) {
         ConstraintViolation<?> violation = error.unwrap(ConstraintViolation.class);
-        return violation == null || violation.getConstraintDescriptor().getPayload().contains(GlobalError.class);
+        return (violation != null) && violation.getConstraintDescriptor().getPayload().contains(GlobalError.class);
     }
 
     public static class GlobalError implements Payload { };
