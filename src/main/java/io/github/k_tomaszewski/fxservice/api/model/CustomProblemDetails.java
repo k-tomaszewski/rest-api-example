@@ -66,8 +66,8 @@ public class CustomProblemDetails extends ProblemDetail {
     }
 
     private static boolean isGlobalError(FieldError error) {
-        ConstraintViolation<?> violation = error.unwrap(ConstraintViolation.class);
-        return (violation != null) && violation.getConstraintDescriptor().getPayload().contains(GlobalError.class);
+        return error.contains(ConstraintViolation.class)
+                && error.unwrap(ConstraintViolation.class).getConstraintDescriptor().getPayload().contains(GlobalError.class);
     }
 
     public static class GlobalError implements Payload { };
