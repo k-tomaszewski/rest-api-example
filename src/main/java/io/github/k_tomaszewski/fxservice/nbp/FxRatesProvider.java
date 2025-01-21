@@ -19,11 +19,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * This FX rates provider is caching result in `lastUsdPlnPrices` field, as NBP is providing only one pricing per day. We don't need
+ * to fetch if we have pricing for current date already. Moreover, this provider avoids multiple concurrent fetching by using
+ * a single `CompletableFuture` to represent ongoing fetching process. This result is obtained thanks to use of `AtomicReference`.
+ */
 @Component
 public class FxRatesProvider implements AutoCloseable {
 
+    static final ZoneId PL_ZONE = ZoneId.of("Europe/Warsaw");
     private static final Logger LOG = LoggerFactory.getLogger(FxRatesProvider.class);
-    private static final ZoneId PL_ZONE = ZoneId.of("Europe/Warsaw");
 
     private final FxRatesClient client;
     private final long timeoutSeconds;
