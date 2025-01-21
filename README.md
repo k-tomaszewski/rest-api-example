@@ -1,4 +1,4 @@
-# REST API example with Java and Spring Boot
+# REST API service example with Java and Spring Boot
 This is a technology demonstration project to present how to make a simple REST API service with Java 21 and Spring Boot.
 
 ## Requirements
@@ -25,13 +25,14 @@ Everything not specified can be designed and implemented in any desired way.
 My design decisions and technology choice are:
 - Java 21, as this is the current LTS Java version. 
 - Latest stable Spring Boot
-- Maven - rational given here: https://artofcode.wordpress.com/2017/11/17/gradle-vs-maven/
-- Embedded database was selected as it is simpler then running an external database server. H2 database was selected as SQL embedded 
-databases has a very good Spring Boot support. Embedded H2 database (http://www.h2database.com/html/main.html) can persist data on disk, thus it is fulfilling above requirements.
+- Maven - rationale given here: https://artofcode.wordpress.com/2017/11/17/gradle-vs-maven/
+- Embedded database was selected as it is simpler then running a separate database server. H2 database was selected as SQL embedded 
+databases has a very good Spring Boot support. Embedded H2 database (http://www.h2database.com/html/main.html) can persist data on disk, thus it is fulfilling given requirements.
 - Java Bean Validation used for validation as this is supported very well by Spring Boot.
 - HTTPS will be used to communicate with NBP API instead of HTTP as it is available and it's better suited for fetching critical data:
 https://api.nbp.pl/
 - Negative HTTP response bodies have format defined by RFC-9457.
+- GitHub Actions used for CI process.
 
 ## Instructions
 
@@ -51,7 +52,7 @@ java -jar target/fx-service-example-0.0.1-SNAPSHOT.jar
 By default the application starts listening on TCP port 8080.
 
 If the above-mentioned environment variable is not set, the application defaults to start the
-embedded database in in-memory mode.
+embedded database in the in-memory mode.
 
 ## REST API guide
 There are 3 REST API endpoints supported to meet above-mentioned requirements:
